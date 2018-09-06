@@ -1,13 +1,15 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt-nodejs')
+const cors = require('cors')
 
 const salt = bcrypt.genSaltSync(10)
 console.log('salt:', salt)
 
-const port = 3000
+const port = 8080
 const app = express()
 app.use(bodyParser.json())
+app.use(cors())
 
 const database = {
   users: [
@@ -23,18 +25,26 @@ const database = {
       _id: '002',
       name: 'Mary',
       email: 'mary@gmail.com',
-      password: '654321',
+      password: '123456',
+      entries: 0,
+      joined: new Date(),
+    },
+    {
+      _id: '003',
+      name: 'aaa',
+      email: 'a@a',
+      password: 'aaaaaaaaa',
       entries: 0,
       joined: new Date(),
     },
   ],
 
   logins: [
-    {
-      _id: '001',
-      email: 'lisa@gmail.com',
-      hash: '',
-    },
+    // {
+    //   _id: '001',
+    //   email: 'lisa@gmail.com',
+    //   hash: '',
+    // },
   ],
 }
 
@@ -51,33 +61,23 @@ app.get('/', (req, res) => {
 // /signin ==> POST = success/fail
 app.post('/signin', (req, res) => {
   const { email, password } = req.body
-  let userId = null
-  let hash = null
   let foundUser = null
-  database.logins.some((login, index) => {
-    if (email === login.email) {
-      userId = login._id
-      hash = login.hash
-      return true
+  database.users.some(user => {
+    if (email === user.email) {
+      if (password === user.password) {
+        foundUser = user
+        return true
+      }
     }
   })
 
-  bcrypt.compare(password, hash, (err, result) => {
-    if (err) {
-      console.log(err)
-      throw err
-    }
-
-    if (result) {
-      database.users.some(user => {
-        if (userId === user._id) {
-          res.send(user)
-        }
-      })
-    }else{
-      res.send('User not found.')
-    }
-  })
+  if (foundUser) {
+    console.log('user found')
+    res.status(200).json(foundUser)
+  } else {
+    console.log('user not found')
+    res.status(400).json('fail')
+  }
 })
 
 // /register ==> POST = new user
@@ -91,7 +91,8 @@ app.post('/register', (req, res) => {
     bcrypt.hash(password, salt, null, (err, hash) => {
       if (err) {
         console.log(err)
-        res.send('Sorry, there are some problems.')
+        res.status(400).json('fail')
+        // res.send('Sorry, there are some problems.')
       }
 
       if (hash) {
@@ -103,6 +104,7 @@ app.post('/register', (req, res) => {
         hash,
       }
       database.logins.push(newLogin)
+      console.log(newLogin)
 
       newUser = {
         _id,
@@ -112,13 +114,15 @@ app.post('/register', (req, res) => {
         joined: new Date(),
       }
       database.users.push(newUser)
+      console.log(newUser)
 
       // res.setHeader('Content-Type', 'application/json')
       // res.writeHead(200)
-      res.write('You are now a registered user\n')
-      res.write(prettyJSON(newUser))
-      res.write(prettyJSON(newLogin))
-      return res.end()
+      // res.write('You are now a registered user\n')
+      // res.write(prettyJSON(newUser))
+      // res.write(prettyJSON(newLogin))
+      // return res.end()
+      res.status(200).json(newUser)
     })
   }
 })
@@ -152,7 +156,11 @@ app.patch('/image', (req, res) => {
   })
 
   if (foundUser) {
-    res.json(foundUser)
+    res.json({
+      _id: foundUser._id,
+      entries: foundUser.entries,
+      name: foundUser.name,
+    })
   } else {
     res.status(404).send('No user found.')
   }
