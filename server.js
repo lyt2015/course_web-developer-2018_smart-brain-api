@@ -24,10 +24,11 @@ app.use(bodyParser.json())
 app.use(cors())
 
 app.get('/', async (req, res) => {
-  const users = await knex.select().from('users')
-  const logins = await knex.select().from('logins')
-  const db = { users, logins }
-  res.json(db)
+  // const users = await knex.select().from('users')
+  // const logins = await knex.select().from('logins')
+  // const db = { users, logins }
+  // res.json(db)
+  res.send('Server is running.')
 })
 
 app.post('/signin', signin.handleSignin(bcrypt, knex))
