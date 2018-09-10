@@ -1,3 +1,17 @@
+const Clarifai = require('clarifai')
+
+const app = new Clarifai.App({ apiKey: 'c330aeac794f40db9cb1ec09356e3171' })
+
+const handleApiCall = async (req, res) => {
+  try {
+    const result = await app.models.predict(Clarifai.DEMOGRAPHICS_MODEL, req.body.imageUrl)
+    res.json(result)
+  } catch (error) {
+    console.log(error)
+    res.status(400).json('requesting clarifai image detection service failed')
+  }
+}
+
 const handleImage = knex => async (req, res) => {
   const { _id } = req.body
 
@@ -18,5 +32,6 @@ const handleImage = knex => async (req, res) => {
 }
 
 module.exports = {
+  handleApiCall,
   handleImage,
 }

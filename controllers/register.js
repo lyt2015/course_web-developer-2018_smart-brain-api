@@ -24,12 +24,10 @@ const handleRegister = (bcrypt, salt, knex) => (req, res) => {
               })
           })
           .then(insertedUsers => {
-            // console.log('insertedUsers:', insertedUsers)
-
             return res.json(insertedUsers[0])
           })
           .catch(err => {
-            return res.status(400).json('Please try register with other name or email again.')
+            return res.status(400).json('Please try with other name or email again.')
           })
       }
     })

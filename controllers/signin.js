@@ -1,14 +1,11 @@
 const handleSignin = (bcrypt, knex) => async (req, res) => {
   const { email, password } = req.body
-
   if (email && password) {
     try {
       const login = (await knex
         .from('logins')
         .where({ email })
         .select('email', 'hash'))[0]
-
-      // console.log(login)
 
       if (login) {
         bcrypt.compare(password, login.hash, async (err, result) => {

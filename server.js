@@ -18,7 +18,7 @@ const profile = require('./controllers/profile')
 const image = require('./controllers/image')
 
 const salt = bcrypt.genSaltSync(10)
-const port = 3000
+const PORT = process.env.PORT || 3000
 const app = express()
 app.use(bodyParser.json())
 app.use(cors())
@@ -31,25 +31,14 @@ app.get('/', async (req, res) => {
 })
 
 app.post('/signin', signin.handleSignin(bcrypt, knex))
-// app.post('/signin', (req, res) => {
-//   signin.handleSignin(req, res, bcrypt, knex)
-// })
 
 app.post('/register', register.handleRegister(bcrypt, salt, knex))
-// app.post('/register', (req, res) => {
-//   register.handleRegister(req, res, bcrypt, salt, knex)
-// })
 
 app.get('/profile/:userId', profile.handleProfile(knex))
-// app.get('/profile/:userId', (req, res) => {
-//   profile.handleProfile(req, res, knex)
-// })
 
 app.patch('/image', image.handleImage(knex))
-// app.patch('/image', (req, res) => {
-//   image.handleImage(req, res, knex)
-// })
+app.post('/imageurl', image.handleApiCall)
 
-app.listen(port, () => {
-  console.log(`Server is up at ${port}.`)
+app.listen(PORT, () => {
+  console.log(`Server is up at ${PORT}.`)
 })
